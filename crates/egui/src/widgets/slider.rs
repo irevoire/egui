@@ -80,6 +80,7 @@ pub struct Slider<'a> {
     /// Sets the minimal step of the widget value
     step: Option<f64>,
 
+    width: Option<f32>,
     drag_value_speed: Option<f64>,
     min_decimals: usize,
     max_decimals: Option<usize>,
@@ -134,7 +135,23 @@ impl<'a> Slider<'a> {
             custom_parser: None,
             trailing_fill: None,
             handle_shape: None,
+            width: None,
         }
+    }
+
+    /// Control the width of the slider.
+    /// The default [`Slider`] size is set by [`crate::style::Spacing::slider_width`].
+    ///
+    /// ```
+    /// # egui::__run_test_ui(|ui| {
+    /// # let mut my_f32: f32 = 0.0;
+    /// ui.add(egui::Slider::new(&mut my_f32, 0.0..=100.0).width(ui.available_width());
+    /// # });
+    /// ```
+    #[inline]
+    pub fn width(mut self, width: f32) -> Self {
+        self.width = Some(width);
+        self
     }
 
     /// Control whether or not the slider shows the current value.
@@ -565,9 +582,10 @@ impl<'a> Slider<'a> {
 impl<'a> Slider<'a> {
     /// Just the slider, no text
     fn allocate_slider_space(&self, ui: &mut Ui, thickness: f32) -> Response {
+        let width = self.width.unwrap_or(ui.spacing().slider_width);
         let desired_size = match self.orientation {
-            SliderOrientation::Horizontal => vec2(ui.spacing().slider_width, thickness),
-            SliderOrientation::Vertical => vec2(thickness, ui.spacing().slider_width),
+            SliderOrientation::Horizontal => vec2(width, thickness),
+            SliderOrientation::Vertical => vec2(thickness, width),
         };
         ui.allocate_response(desired_size, Sense::drag())
     }
